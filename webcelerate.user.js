@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.1
+// @version      1.2
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        https://chatgpt.com/*
@@ -38,8 +38,8 @@
 
   function initChatGPT() {
     const MAPPINGS = {
-      "F1": { label: "GPT-5.1 Instant", match: "5.1 instant", legacy: true },
-      "F2": { label: "GPT-5 Thinking", match: "5 thinking", legacy: true },
+      "F1": { label: "ChatGPT 5 Instant", match: "5 instant", legacy: true },
+      "F2": { label: "GPT-5 Thinking", match: "5 thinking", exclude: ["mini"], legacy: true },
       "F3": { label: "o3", match: "o3", legacy: true },
       "F4": { label: "GPT-4o", match: "4o", legacy: true },
     };
@@ -102,11 +102,15 @@
       return null;
     }
 
-    function findMenuItem(text) {
+    function findMenuItem(text, exclude = []) {
       const wanted = norm(text);
       for (const el of document.querySelectorAll('[role="menuitem"], [role="option"], [role="menu"] div, [role="listbox"] div')) {
         const t = norm(el.innerText);
-        if (t.includes(wanted) && isVisible(el)) return el;
+        if (t.includes(wanted) && isVisible(el)) {
+          if (exclude.length === 0 || !exclude.some(ex => t.includes(norm(ex)))) {
+            return el;
+          }
+        }
       }
       return null;
     }
@@ -203,7 +207,7 @@
     }
 
     async function switchModel(config) {
-      const { label, match, legacy } = config;
+      const { label, match, exclude = [], legacy } = config;
 
       saveScroll();
 
@@ -231,7 +235,7 @@
         restoreScroll();
       }
 
-      const target = await waitFor(() => findMenuItem(match));
+      const target = await waitFor(() => findMenuItem(match, exclude));
       if (!target) {
         dismissMenu();
         restoreScroll();
