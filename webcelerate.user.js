@@ -39,7 +39,7 @@
   function initChatGPT() {
     const MAPPINGS = {
       "F1": { label: "GPT-5.1 Instant", match: "5.1 instant", legacy: true },
-      "F2": { label: "GPT-5.1 Thinking", match: "5.1 thinking", legacy: true },
+      "F2": { label: "GPT-5.2 Thinking", match: "5.2 thinking", legacy: true },
       "F3": { label: "o3", match: "o3", legacy: true },
       "F4": { label: "GPT-4o", match: "4o", legacy: true },
     };
