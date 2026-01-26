@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.2
+// @version      1.3
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        https://chatgpt.com/*
@@ -9,12 +9,22 @@
 // @match        https://claude.ai/*
 // @updateURL    https://raw.githubusercontent.com/4x1om/webcelerate/main/webcelerate.user.js
 // @downloadURL  https://raw.githubusercontent.com/4x1om/webcelerate/main/webcelerate.user.js
-// @run-at       document-idle
+// @run-at       document-start
 // @grant        none
 // ==/UserScript==
 
 (() => {
   "use strict";
+
+  // ============ EARLY KEY BLOCKING ============
+  // Block F1-F4 immediately to prevent browser defaults (e.g., F1 help)
+  const BLOCKED_KEYS = ["F1", "F2", "F3", "F4"];
+  document.addEventListener("keydown", (e) => {
+    if (BLOCKED_KEYS.includes(e.key)) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }, true);
 
   const DEBUG = true;
   const log = (...a) => DEBUG && console.log("[Webcelerate]", ...a);
@@ -287,11 +297,20 @@
     return null;
   }
 
-  const site = getCurrentSite();
-  if (site) {
-    log(`Detected site: ${site.name}`);
-    site.handler.init();
+  function initSiteHandler() {
+    const site = getCurrentSite();
+    if (site) {
+      log(`Detected site: ${site.name}`);
+      site.handler.init();
+    } else {
+      log("Unknown site, no handler available");
+    }
+  }
+
+  // Wait for DOM to be ready before initializing site handlers
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSiteHandler);
   } else {
-    log("Unknown site, no handler available");
+    initSiteHandler();
   }
 })();
