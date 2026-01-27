@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.3
+// @version      1.4
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        https://chatgpt.com/*
@@ -281,8 +281,115 @@
   // ============ CLAUDE HANDLER ============
 
   function initClaude() {
-    // Placeholder for Claude.ai features
-    log("Claude: Ready - no features implemented yet");
+    const MAPPINGS = {
+      "F1": { label: "Sonnet 4.5", match: "sonnet 4.5" },
+      "F2": { label: "Opus 4.5", match: "opus 4.5" },
+    };
+
+    let lastRun = 0;
+
+    function isVisible(el) {
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    }
+
+    function findModelButton() {
+      return document.querySelector('button[data-testid="model-selector-dropdown"]');
+    }
+
+    function findMenuItem(text) {
+      const wanted = norm(text);
+      for (const el of document.querySelectorAll('[role="menuitem"]')) {
+        const t = norm(el.innerText);
+        if (t.includes(wanted) && isVisible(el)) return el;
+      }
+      return null;
+    }
+
+    function findTextbox() {
+      const selectors = [
+        'div[contenteditable="true"].ProseMirror',
+        'div[contenteditable="true"]',
+        'textarea',
+      ];
+      for (const sel of selectors) {
+        const el = document.querySelector(sel);
+        if (el && isVisible(el)) return el;
+      }
+      return null;
+    }
+
+    function focusTextbox() {
+      const textbox = findTextbox();
+      if (textbox) {
+        textbox.focus();
+      }
+    }
+
+    function isAlreadySelected(match) {
+      const btn = findModelButton();
+      return btn && norm(btn.innerText).includes(norm(match));
+    }
+
+    function dismissMenu() {
+      document.body.click();
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true }));
+    }
+
+    async function switchModel(config) {
+      const { label, match } = config;
+
+      if (isAlreadySelected(match)) {
+        focusTextbox();
+        return true;
+      }
+
+      const btn = findModelButton();
+      if (!btn) { log("No model button"); return false; }
+
+      btn.click();
+      await sleep(50);
+
+      const target = await waitFor(() => findMenuItem(match), 1000);
+      if (!target) {
+        log("Model not found:", match);
+        dismissMenu();
+        return false;
+      }
+
+      target.click();
+      await sleep(50);
+      focusTextbox();
+
+      return true;
+    }
+
+    async function waitFor(fn, timeout = 1000, interval = 20) {
+      const end = Date.now() + timeout;
+      while (Date.now() < end) {
+        const el = fn();
+        if (el) return el;
+        await sleep(interval);
+      }
+      return null;
+    }
+
+    document.addEventListener("keydown", async (e) => {
+      const config = MAPPINGS[e.key];
+      if (!config) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (e.isComposing || e.repeat) return;
+      if (Date.now() - lastRun < 800) return;
+      lastRun = Date.now();
+
+      await switchModel(config);
+    }, true);
+
+    log("Claude: Ready - F1=Sonnet 4.5, F2=Opus 4.5");
   }
 
   // ============ INITIALIZATION ============

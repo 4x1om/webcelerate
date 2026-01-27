@@ -9,7 +9,7 @@ A userscript that provides keyboard shortcuts and enhancements for AI chat inter
 ## Supported Sites
 
 - chatgpt.com / chat.openai.com - Model switcher (F1-F4 keys)
-- claude.ai - (placeholder, no features yet)
+- claude.ai - Model switcher (F1=Sonnet 4.5, F2=Opus 4.5)
 
 ## Architecture
 
