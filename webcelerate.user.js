@@ -1,12 +1,10 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.4
+// @version      1.5
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
-// @match        https://chatgpt.com/*
-// @match        https://chat.openai.com/*
-// @match        https://claude.ai/*
+// @match        *://*/*
 // @updateURL    https://raw.githubusercontent.com/4x1om/webcelerate/main/webcelerate.user.js
 // @downloadURL  https://raw.githubusercontent.com/4x1om/webcelerate/main/webcelerate.user.js
 // @run-at       document-start
@@ -409,8 +407,6 @@
     if (site) {
       log(`Detected site: ${site.name}`);
       site.handler.init();
-    } else {
-      log("Unknown site, no handler available");
     }
   }
 
