@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.6
+// @version      1.7
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -285,11 +285,6 @@
         log("Auto-selecting:", config.label);
         await switchModel(config);
       }
-      await sleep(2000);
-      if (!isAlreadySelected(config.match)) {
-        log("Re-selecting:", config.label);
-        await switchModel(config);
-      }
     })();
 
     log("ChatGPT: Ready - F1=Instant, F2=5 Thinking, F3=o3, F4=4o (auto-select enabled)");
@@ -414,11 +409,6 @@
       await sleep(500);
       if (!isAlreadySelected(config.match)) {
         log("Auto-selecting:", config.label);
-        await switchModel(config);
-      }
-      await sleep(2000);
-      if (!isAlreadySelected(config.match)) {
-        log("Re-selecting:", config.label);
         await switchModel(config);
       }
     })();
