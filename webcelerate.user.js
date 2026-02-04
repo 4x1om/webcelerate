@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.5
+// @version      1.6
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -46,7 +46,7 @@
 
   function initChatGPT() {
     const MAPPINGS = {
-      "F1": { label: "ChatGPT 5 Instant", match: "5 instant", legacy: true },
+      "F1": { label: "Instant", match: "instant" },
       "F2": { label: "GPT-5 Thinking", match: "5 thinking", exclude: ["mini"], legacy: true },
       "F3": { label: "o3", match: "o3", legacy: true },
       "F4": { label: "GPT-4o", match: "4o", legacy: true },
@@ -101,9 +101,11 @@
     }
 
     function findModelButton() {
+      const byTestId = document.querySelector('button[data-testid="model-switcher-dropdown-button"]');
+      if (byTestId && isVisible(byTestId)) return byTestId;
       for (const btn of document.querySelectorAll('button[aria-haspopup]')) {
         const t = norm(btn.innerText);
-        if ((t.includes("gpt") || t.includes("o1") || t.includes("o3") || t.includes("4o")) && isVisible(btn)) {
+        if ((t.includes("gpt") || t.includes("o1") || t.includes("o3") || t.includes("4o") || t.includes("instant")) && isVisible(btn)) {
           return btn;
         }
       }
@@ -273,7 +275,24 @@
       await switchModel(config);
     }, true);
 
-    log("ChatGPT: Ready - F1=5.1 Instant, F2=5.1 Thinking, F3=o3, F4=4o");
+    // Auto-select F1 model on page load
+    (async () => {
+      const config = MAPPINGS["F1"];
+      const btn = await waitFor(findModelButton, 15000, 200);
+      if (!btn) { log("Auto-select: model button not found"); return; }
+      await sleep(500);
+      if (!isAlreadySelected(config.match)) {
+        log("Auto-selecting:", config.label);
+        await switchModel(config);
+      }
+      await sleep(2000);
+      if (!isAlreadySelected(config.match)) {
+        log("Re-selecting:", config.label);
+        await switchModel(config);
+      }
+    })();
+
+    log("ChatGPT: Ready - F1=Instant, F2=5 Thinking, F3=o3, F4=4o (auto-select enabled)");
   }
 
   // ============ CLAUDE HANDLER ============
@@ -387,7 +406,24 @@
       await switchModel(config);
     }, true);
 
-    log("Claude: Ready - F1=Sonnet 4.5, F2=Opus 4.5");
+    // Auto-select F1 model on page load
+    (async () => {
+      const config = MAPPINGS["F1"];
+      const btn = await waitFor(findModelButton, 15000, 200);
+      if (!btn) { log("Auto-select: model button not found"); return; }
+      await sleep(500);
+      if (!isAlreadySelected(config.match)) {
+        log("Auto-selecting:", config.label);
+        await switchModel(config);
+      }
+      await sleep(2000);
+      if (!isAlreadySelected(config.match)) {
+        log("Re-selecting:", config.label);
+        await switchModel(config);
+      }
+    })();
+
+    log("Claude: Ready - F1=Sonnet 4.5, F2=Opus 4.5 (auto-select enabled)");
   }
 
   // ============ INITIALIZATION ============
