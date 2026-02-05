@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.9
+// @version      1.10
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -49,7 +49,7 @@
       "F1": { label: "ChatGPT 5.1 Instant", match: "5.1 instant", legacy: true },
       "F2": { label: "GPT-5.1 Thinking", match: "5.1 thinking", legacy: true },
       "F3": { label: "o3", match: "o3", legacy: true },
-      "F4": { label: "GPT5 Thinking Mini", match: "gpt5 thinking mini", legacy: true },
+      "F4": { label: "GPT-5 Thinking Mini", match: "gpt-5 thinking mini", legacy: true },
     };
 
     const LEGACY_LABEL = "Legacy models";
@@ -287,7 +287,7 @@
       }
     })();
 
-    log("ChatGPT: Ready - F1=5.1 Instant, F2=5.1 Thinking, F3=o3, F4=GPT5 Thinking Mini (auto-select enabled)");
+    log("ChatGPT: Ready - F1=5.1 Instant, F2=5.1 Thinking, F3=o3, F4=GPT-5 Thinking Mini (auto-select enabled)");
   }
 
   // ============ CLAUDE HANDLER ============
