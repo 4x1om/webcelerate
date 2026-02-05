@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.10
+// @version      1.11
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -46,10 +46,10 @@
 
   function initChatGPT() {
     const MAPPINGS = {
-      "F1": { label: "ChatGPT 5.1 Instant", match: "5.1 instant", legacy: true },
+      "F1": { label: "GPT-5.1 Instant", match: "5.1 instant", legacy: true },
       "F2": { label: "GPT-5.1 Thinking", match: "5.1 thinking", legacy: true },
       "F3": { label: "o3", match: "o3", legacy: true },
-      "F4": { label: "GPT-5 Thinking Mini", match: "gpt-5 thinking mini", legacy: true },
+      "F4": { label: "GPT-5 Thinking mini", match: "5 thinking mini", legacy: true },
     };
 
     const LEGACY_LABEL = "Legacy models";
