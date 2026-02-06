@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.11
+// @version      1.12
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -295,7 +295,7 @@
   function initClaude() {
     const MAPPINGS = {
       "F1": { label: "Sonnet 4.5", match: "sonnet 4.5" },
-      "F2": { label: "Opus 4.5", match: "opus 4.5" },
+      "F2": { label: "Opus 4.6", match: "opus 4.6" },
     };
 
     let lastRun = 0;
@@ -413,7 +413,7 @@
       }
     })();
 
-    log("Claude: Ready - F1=Sonnet 4.5, F2=Opus 4.5 (auto-select enabled)");
+    log("Claude: Ready - F1=Sonnet 4.5, F2=Opus 4.6 (auto-select enabled)");
   }
 
   // ============ INITIALIZATION ============
