@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.12
+// @version      1.13
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -39,6 +39,10 @@
     claude: {
       hostnames: ["claude.ai"],
       init: initClaude,
+    },
+    gemini: {
+      hostnames: ["gemini.google.com"],
+      init: initGemini,
     },
   };
 
@@ -414,6 +418,129 @@
     })();
 
     log("Claude: Ready - F1=Sonnet 4.5, F2=Opus 4.6 (auto-select enabled)");
+  }
+
+  // ============ GEMINI HANDLER ============
+
+  function initGemini() {
+    const MAPPINGS = {
+      "F1": { label: "Fast", testId: "bard-mode-option-fast" },
+      "F2": { label: "Thinking", testId: "bard-mode-option-thinking" },
+      "F3": { label: "Pro", testId: "bard-mode-option-pro" },
+    };
+
+    let lastRun = 0;
+
+    function isVisible(el) {
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    }
+
+    function findModelButton() {
+      return document.querySelector('[data-test-id="bard-mode-menu-button"]');
+    }
+
+    function findMenuItem(testId) {
+      return document.querySelector(`[data-test-id="${testId}"]`);
+    }
+
+    function findTextbox() {
+      const selectors = [
+        'rich-textarea[aria-label*="Enter a prompt"]',
+        'rich-textarea',
+        'div[contenteditable="true"]',
+        'textarea',
+      ];
+      for (const sel of selectors) {
+        const el = document.querySelector(sel);
+        if (el && isVisible(el)) return el;
+      }
+      return null;
+    }
+
+    function focusTextbox() {
+      const textbox = findTextbox();
+      if (textbox) {
+        textbox.focus();
+      }
+    }
+
+    function isAlreadySelected(testId) {
+      const item = findMenuItem(testId);
+      return item && item.getAttribute('aria-checked') === 'true';
+    }
+
+    function dismissMenu() {
+      document.body.click();
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true }));
+    }
+
+    async function switchModel(config) {
+      const { label, testId } = config;
+
+      if (isAlreadySelected(testId)) {
+        focusTextbox();
+        return true;
+      }
+
+      const btn = findModelButton();
+      if (!btn) { log("No model button"); return false; }
+
+      btn.click();
+      await sleep(100);
+
+      const target = await waitFor(() => findMenuItem(testId), 1000);
+      if (!target) {
+        log("Model not found:", label);
+        dismissMenu();
+        return false;
+      }
+
+      target.click();
+      await sleep(50);
+      focusTextbox();
+
+      return true;
+    }
+
+    async function waitFor(fn, timeout = 1000, interval = 20) {
+      const end = Date.now() + timeout;
+      while (Date.now() < end) {
+        const el = fn();
+        if (el) return el;
+        await sleep(interval);
+      }
+      return null;
+    }
+
+    document.addEventListener("keydown", async (e) => {
+      const config = MAPPINGS[e.key];
+      if (!config) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (e.isComposing || e.repeat) return;
+      if (Date.now() - lastRun < 800) return;
+      lastRun = Date.now();
+
+      await switchModel(config);
+    }, true);
+
+    // Auto-select F1 model on page load
+    (async () => {
+      const config = MAPPINGS["F1"];
+      const btn = await waitFor(findModelButton, 15000, 200);
+      if (!btn) { log("Auto-select: model button not found"); return; }
+      await sleep(500);
+      if (!isAlreadySelected(config.testId)) {
+        log("Auto-selecting:", config.label);
+        await switchModel(config);
+      }
+    })();
+
+    log("Gemini: Ready - F1=Fast, F2=Thinking, F3=Pro (auto-select enabled)");
   }
 
   // ============ INITIALIZATION ============
