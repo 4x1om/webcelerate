@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.13
+// @version      1.14
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -284,10 +284,11 @@
       const config = MAPPINGS["F1"];
       const btn = await waitFor(findModelButton, 15000, 200);
       if (!btn) { log("Auto-select: model button not found"); return; }
-      await sleep(500);
-      if (!isAlreadySelected(config.match)) {
+      for (let i = 0; i < 10; i++) {
+        await sleep(500);
+        if (isAlreadySelected(config.match)) return;
         log("Auto-selecting:", config.label);
-        await switchModel(config);
+        if (await switchModel(config)) return;
       }
     })();
 
@@ -410,10 +411,11 @@
       const config = MAPPINGS["F1"];
       const btn = await waitFor(findModelButton, 15000, 200);
       if (!btn) { log("Auto-select: model button not found"); return; }
-      await sleep(500);
-      if (!isAlreadySelected(config.match)) {
+      for (let i = 0; i < 10; i++) {
+        await sleep(500);
+        if (isAlreadySelected(config.match)) return;
         log("Auto-selecting:", config.label);
-        await switchModel(config);
+        if (await switchModel(config)) return;
       }
     })();
 
@@ -533,10 +535,11 @@
       const config = MAPPINGS["F1"];
       const btn = await waitFor(findModelButton, 15000, 200);
       if (!btn) { log("Auto-select: model button not found"); return; }
-      await sleep(500);
-      if (!isAlreadySelected(config.testId)) {
+      for (let i = 0; i < 10; i++) {
+        await sleep(500);
+        if (isAlreadySelected(config.testId)) return;
         log("Auto-selecting:", config.label);
-        await switchModel(config);
+        if (await switchModel(config)) return;
       }
     })();
 
