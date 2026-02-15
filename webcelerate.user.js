@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.14
+// @version      1.15
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -238,7 +238,7 @@
       restoreScroll();
 
       if (legacy) {
-        const legacyItem = await waitFor(() => findMenuItem(LEGACY_LABEL));
+        const legacyItem = await waitFor(() => findMenuItem(LEGACY_LABEL), 3000);
         if (!legacyItem) {
           dismissMenu();
           restoreScroll();
@@ -249,8 +249,9 @@
         restoreScroll();
       }
 
-      const target = await waitFor(() => findMenuItem(match, exclude));
+      const target = await waitFor(() => findMenuItem(match, exclude), 3000);
       if (!target) {
+        log("Menu item not found:", match);
         dismissMenu();
         restoreScroll();
         return false;
@@ -287,9 +288,10 @@
       for (let i = 0; i < 10; i++) {
         await sleep(500);
         if (isAlreadySelected(config.match)) return;
-        log("Auto-selecting:", config.label);
+        log("Auto-selecting:", config.label, `(attempt ${i + 1}/10)`);
         if (await switchModel(config)) return;
       }
+      log("Auto-select: gave up after 10 attempts");
     })();
 
     log("ChatGPT: Ready - F1=5.1 Instant, F2=5.1 Thinking, F3=o3, F4=GPT-5 Thinking Mini (auto-select enabled)");
