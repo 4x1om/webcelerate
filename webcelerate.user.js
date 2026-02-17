@@ -404,14 +404,14 @@
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true }));
     }
 
-    // Check if the menu is fully loaded by verifying multiple menu items exist
+    // Check if the menu is fully loaded by verifying at least one menu item exists
+    // Note: On existing conversations, Claude only shows the current model in the menu
     function isMenuLoaded() {
       const items = document.querySelectorAll('[role="menuitem"]');
-      let visibleCount = 0;
       for (const el of items) {
-        if (isVisible(el)) visibleCount++;
+        if (isVisible(el)) return true;
       }
-      return visibleCount >= 2;
+      return false;
     }
 
     async function switchModel(config) {
