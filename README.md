@@ -6,15 +6,15 @@ Made with Claude.
 
 ## Supported Sites
 
+### Claude (claude.ai)
+- **F1** - Sonnet (latest version, auto-selected)
+- **F2** - Opus (latest version)
+
 ### ChatGPT (chatgpt.com)
-- **F1** - GPT-5.1 Instant
+- **F1** - GPT-5.1 Instant (auto-selected)
 - **F2** - GPT-5.1 Thinking
 - **F3** - o3
 - **F4** - GPT-5 Thinking mini
-
-### Claude (claude.ai)
-- **F1** - Sonnet 4.5 (auto-selected)
-- **F2** - Opus 4.6
 
 ### Gemini (gemini.google.com)
 - **F1** - Fast (auto-selected)
@@ -24,7 +24,8 @@ Made with Claude.
 ## Features
 
 - **Instant model switching** with function keys
-- **Auto-selects F1 model** on page load
+- **Auto-selects F1 model** on page load (stops if you manually pick a model)
+- **Smart retry** - distinguishes slow page loads from unavailable models
 - **Prevents browser defaults** for F1-F4 keys
 - **Automatic updates** from this repository
 

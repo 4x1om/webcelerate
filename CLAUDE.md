@@ -17,8 +17,9 @@ A userscript that provides keyboard shortcuts and enhancements for AI chat inter
 - Auto-selects GPT-5.1 Instant on page load
 
 ### Claude (claude.ai)
-- F1 = Sonnet 4.5 (auto-selected)
-- F2 = Opus 4.6
+- F1 = Sonnet (latest version, auto-selected)
+- F2 = Opus (latest version)
+- Pattern-based matching (matches model family name, not specific version)
 - Simpler implementation using data-testid selectors
 
 ### Gemini (gemini.google.com)

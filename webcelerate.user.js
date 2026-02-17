@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.15
+// @version      1.16
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -61,6 +61,8 @@
     let lastRun = 0;
     let savedScrollTop = 0;
     let scrollContainer = null;
+    let autoSelectAborted = false;
+    let switchingModel = false;
 
     function isVisible(el) {
       if (!el) return false;
@@ -220,6 +222,15 @@
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true }));
     }
 
+    // Check if the menu is fully loaded by counting visible items
+    function isMenuLoaded() {
+      let visibleCount = 0;
+      for (const el of document.querySelectorAll('[role="menuitem"], [role="option"], [role="menu"] div, [role="listbox"] div')) {
+        if (isVisible(el)) visibleCount++;
+      }
+      return visibleCount >= 2;
+    }
+
     async function switchModel(config) {
       const { label, match, exclude = [], legacy } = config;
 
@@ -227,12 +238,13 @@
 
       if (isAlreadySelected(match)) {
         focusTextbox();
-        return true;
+        return { success: true, found: true };
       }
 
       const btn = findModelButton();
-      if (!btn) { log("No model button"); return false; }
+      if (!btn) { log("No model button"); return { success: false, found: false }; }
 
+      switchingModel = true;
       clickMenuButton(btn);
       await sleep(50);
       restoreScroll();
@@ -240,9 +252,11 @@
       if (legacy) {
         const legacyItem = await waitFor(() => findMenuItem(LEGACY_LABEL), 3000);
         if (!legacyItem) {
+          const menuReady = isMenuLoaded();
           dismissMenu();
           restoreScroll();
-          return false;
+          switchingModel = false;
+          return { success: false, found: false, menuLoaded: menuReady };
         }
         clickItem(legacyItem);
         await sleep(40);
@@ -251,19 +265,22 @@
 
       const target = await waitFor(() => findMenuItem(match, exclude), 3000);
       if (!target) {
-        log("Menu item not found:", match);
+        const menuReady = isMenuLoaded();
+        log("Menu item not found:", match, menuReady ? "(menu loaded, model unavailable)" : "(menu still loading)");
         dismissMenu();
         restoreScroll();
-        return false;
+        switchingModel = false;
+        return { success: false, found: false, menuLoaded: menuReady };
       }
 
       clickItem(target);
 
       await sleep(60);
+      switchingModel = false;
       scheduleScrollRestore(5);
       focusTextbox();
 
-      return true;
+      return { success: true, found: true };
     }
 
     document.addEventListener("keydown", async (e) => {
@@ -277,19 +294,47 @@
       if (Date.now() - lastRun < 800) return;
       lastRun = Date.now();
 
+      // Any manual key press aborts auto-select
+      autoSelectAborted = true;
+
       await switchModel(config);
     }, true);
+
+    // Watch model button for GUI-driven changes (user clicking in the UI)
+    function watchModelButton() {
+      const btn = findModelButton();
+      if (!btn) return;
+      const initialText = norm(btn.innerText);
+      const observer = new MutationObserver(() => {
+        if (switchingModel) return;
+        const currentText = norm(btn.innerText);
+        if (currentText !== initialText && !autoSelectAborted) {
+          autoSelectAborted = true;
+          log("Auto-select: aborted (model changed via GUI)");
+        }
+      });
+      observer.observe(btn, { childList: true, subtree: true, characterData: true });
+    }
 
     // Auto-select F1 model on page load
     (async () => {
       const config = MAPPINGS["F1"];
       const btn = await waitFor(findModelButton, 15000, 200);
       if (!btn) { log("Auto-select: model button not found"); return; }
+      watchModelButton();
       for (let i = 0; i < 10; i++) {
+        if (autoSelectAborted) { log("Auto-select: aborted (user manually selected a model)"); return; }
         await sleep(500);
+        if (autoSelectAborted) { log("Auto-select: aborted (user manually selected a model)"); return; }
         if (isAlreadySelected(config.match)) return;
         log("Auto-selecting:", config.label, `(attempt ${i + 1}/10)`);
-        if (await switchModel(config)) return;
+        const result = await switchModel(config);
+        if (autoSelectAborted) { log("Auto-select: aborted (user manually selected a model)"); return; }
+        if (result.success) return;
+        if (result.menuLoaded) {
+          log("Auto-select: model not available in menu, giving up");
+          return;
+        }
       }
       log("Auto-select: gave up after 10 attempts");
     })();
@@ -300,12 +345,15 @@
   // ============ CLAUDE HANDLER ============
 
   function initClaude() {
+    // Pattern-based matching: matches "Sonnet" followed by any version number
     const MAPPINGS = {
-      "F1": { label: "Sonnet 4.5", match: "sonnet 4.5" },
-      "F2": { label: "Opus 4.6", match: "opus 4.6" },
+      "F1": { label: "Sonnet", match: "sonnet" },
+      "F2": { label: "Opus", match: "opus" },
     };
 
     let lastRun = 0;
+    let autoSelectAborted = false;
+    let switchingModel = false; // true while switchModel is running
 
     function isVisible(el) {
       if (!el) return false;
@@ -317,8 +365,8 @@
       return document.querySelector('button[data-testid="model-selector-dropdown"]');
     }
 
-    function findMenuItem(text) {
-      const wanted = norm(text);
+    function findMenuItem(match) {
+      const wanted = norm(match);
       for (const el of document.querySelectorAll('[role="menuitem"]')) {
         const t = norm(el.innerText);
         if (t.includes(wanted) && isVisible(el)) return el;
@@ -356,32 +404,46 @@
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true }));
     }
 
+    // Check if the menu is fully loaded by verifying multiple menu items exist
+    function isMenuLoaded() {
+      const items = document.querySelectorAll('[role="menuitem"]');
+      let visibleCount = 0;
+      for (const el of items) {
+        if (isVisible(el)) visibleCount++;
+      }
+      return visibleCount >= 2;
+    }
+
     async function switchModel(config) {
       const { label, match } = config;
 
       if (isAlreadySelected(match)) {
         focusTextbox();
-        return true;
+        return { success: true, found: true };
       }
 
       const btn = findModelButton();
-      if (!btn) { log("No model button"); return false; }
+      if (!btn) { log("No model button"); return { success: false, found: false }; }
 
+      switchingModel = true;
       btn.click();
       await sleep(50);
 
       const target = await waitFor(() => findMenuItem(match), 1000);
       if (!target) {
-        log("Model not found:", match);
+        const menuReady = isMenuLoaded();
+        log("Model not found:", match, menuReady ? "(menu loaded, model unavailable)" : "(menu still loading)");
         dismissMenu();
-        return false;
+        switchingModel = false;
+        return { success: false, found: false, menuLoaded: menuReady };
       }
 
       target.click();
       await sleep(50);
+      switchingModel = false;
       focusTextbox();
 
-      return true;
+      return { success: true, found: true };
     }
 
     async function waitFor(fn, timeout = 1000, interval = 20) {
@@ -405,23 +467,52 @@
       if (Date.now() - lastRun < 800) return;
       lastRun = Date.now();
 
+      // Any manual key press aborts auto-select
+      autoSelectAborted = true;
+
       await switchModel(config);
     }, true);
+
+    // Watch model button for GUI-driven changes (user clicking in the UI)
+    function watchModelButton() {
+      const btn = findModelButton();
+      if (!btn) return;
+      const initialText = norm(btn.innerText);
+      const observer = new MutationObserver(() => {
+        if (switchingModel) return; // ignore changes caused by our own switchModel
+        const currentText = norm(btn.innerText);
+        if (currentText !== initialText && !autoSelectAborted) {
+          autoSelectAborted = true;
+          log("Auto-select: aborted (model changed via GUI)");
+        }
+      });
+      observer.observe(btn, { childList: true, subtree: true, characterData: true });
+    }
 
     // Auto-select F1 model on page load
     (async () => {
       const config = MAPPINGS["F1"];
       const btn = await waitFor(findModelButton, 15000, 200);
       if (!btn) { log("Auto-select: model button not found"); return; }
+      watchModelButton();
       for (let i = 0; i < 10; i++) {
+        if (autoSelectAborted) { log("Auto-select: aborted (user manually selected a model)"); return; }
         await sleep(500);
-        if (isAlreadySelected(config.match)) return;
-        log("Auto-selecting:", config.label);
-        if (await switchModel(config)) return;
+        if (autoSelectAborted) { log("Auto-select: aborted (user manually selected a model)"); return; }
+        if (isAlreadySelected(config.match)) { log("Auto-select: already on", config.label); return; }
+        log("Auto-selecting:", config.label, `(attempt ${i + 1}/10)`);
+        const result = await switchModel(config);
+        if (autoSelectAborted) { log("Auto-select: aborted (user manually selected a model)"); return; }
+        if (result.success) return;
+        if (result.menuLoaded) {
+          log("Auto-select: model not available in menu, giving up");
+          return;
+        }
       }
+      log("Auto-select: gave up after 10 attempts");
     })();
 
-    log("Claude: Ready - F1=Sonnet 4.5, F2=Opus 4.6 (auto-select enabled)");
+    log("Claude: Ready - F1=Sonnet, F2=Opus (auto-select enabled)");
   }
 
   // ============ GEMINI HANDLER ============
@@ -434,6 +525,8 @@
     };
 
     let lastRun = 0;
+    let autoSelectAborted = false;
+    let switchingModel = false;
 
     function isVisible(el) {
       if (!el) return false;
@@ -485,12 +578,13 @@
 
       if (isAlreadySelected(testId)) {
         focusTextbox();
-        return true;
+        return { success: true, found: true };
       }
 
       const btn = findModelButton();
-      if (!btn) { log("No model button"); return false; }
+      if (!btn) { log("No model button"); return { success: false, found: false }; }
 
+      switchingModel = true;
       btn.click();
       await sleep(100);
 
@@ -498,14 +592,17 @@
       if (!target) {
         log("Model not found:", label);
         dismissMenu();
-        return false;
+        switchingModel = false;
+        // Gemini uses data-test-id so if the button exists but item doesn't, menu is loaded
+        return { success: false, found: false, menuLoaded: !!findModelButton() };
       }
 
       target.click();
       await sleep(50);
+      switchingModel = false;
       focusTextbox();
 
-      return true;
+      return { success: true, found: true };
     }
 
     async function waitFor(fn, timeout = 1000, interval = 20) {
@@ -529,20 +626,49 @@
       if (Date.now() - lastRun < 800) return;
       lastRun = Date.now();
 
+      // Any manual key press aborts auto-select
+      autoSelectAborted = true;
+
       await switchModel(config);
     }, true);
+
+    // Watch model button for GUI-driven changes
+    function watchModelButton() {
+      const btn = findModelButton();
+      if (!btn) return;
+      const initialText = norm(btn.innerText);
+      const observer = new MutationObserver(() => {
+        if (switchingModel) return;
+        const currentText = norm(btn.innerText);
+        if (currentText !== initialText && !autoSelectAborted) {
+          autoSelectAborted = true;
+          log("Auto-select: aborted (model changed via GUI)");
+        }
+      });
+      observer.observe(btn, { childList: true, subtree: true, characterData: true });
+    }
 
     // Auto-select F1 model on page load
     (async () => {
       const config = MAPPINGS["F1"];
       const btn = await waitFor(findModelButton, 15000, 200);
       if (!btn) { log("Auto-select: model button not found"); return; }
+      watchModelButton();
       for (let i = 0; i < 10; i++) {
+        if (autoSelectAborted) { log("Auto-select: aborted (user manually selected a model)"); return; }
         await sleep(500);
+        if (autoSelectAborted) { log("Auto-select: aborted (user manually selected a model)"); return; }
         if (isAlreadySelected(config.testId)) return;
-        log("Auto-selecting:", config.label);
-        if (await switchModel(config)) return;
+        log("Auto-selecting:", config.label, `(attempt ${i + 1}/10)`);
+        const result = await switchModel(config);
+        if (autoSelectAborted) { log("Auto-select: aborted (user manually selected a model)"); return; }
+        if (result.success) return;
+        if (result.menuLoaded) {
+          log("Auto-select: model not available in menu, giving up");
+          return;
+        }
       }
+      log("Auto-select: gave up after 10 attempts");
     })();
 
     log("Gemini: Ready - F1=Fast, F2=Thinking, F3=Pro (auto-select enabled)");
