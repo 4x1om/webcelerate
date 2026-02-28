@@ -14,7 +14,7 @@ A userscript that provides keyboard shortcuts and enhancements for AI chat inter
 - F1-F4 keys for model switching
 - Includes legacy model navigation
 - Scroll position preservation
-- Auto-selects GPT-5.1 Instant on page load
+- Auto-selects GPT-5.2 Instant on page load
 
 ### Claude (claude.ai)
 - F1 = Sonnet (latest version, auto-selected)
