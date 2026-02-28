@@ -11,8 +11,8 @@ Made with Claude.
 - **F2** - Opus (latest version)
 
 ### ChatGPT (chatgpt.com)
-- **F1** - GPT-5.2 Instant (auto-selected)
-- **F2** - GPT-5.2 Thinking
+- **F1** - Instant (latest version, auto-selected)
+- **F2** - Thinking (latest version)
 - **F3** - o3
 - **F4** - GPT-5 Thinking mini
 
