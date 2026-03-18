@@ -11,8 +11,7 @@ A userscript that provides keyboard shortcuts and enhancements for AI chat inter
 ## Supported Sites
 
 ### ChatGPT (chatgpt.com / chat.openai.com)
-- F1-F4 keys for model switching
-- Includes legacy model navigation
+- F1-F2 keys for model switching
 - Scroll position preservation
 - Auto-selects Instant (latest version) on page load
 

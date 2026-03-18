@@ -1,6 +1,6 @@
 # Webcelerate
 
-A userscript that adds keyboard shortcuts for quick model switching on AI chat interfaces. Press F1-F4 to switch models instantly and automatically selects your preferred model on page load.
+A userscript that adds keyboard shortcuts for quick model switching on AI chat interfaces. It automatically selects your preferred model on page load.
 
 Made with Claude.
 
@@ -13,8 +13,6 @@ Made with Claude.
 ### ChatGPT (chatgpt.com)
 - **F1** - Instant (latest version, auto-selected)
 - **F2** - Thinking (latest version)
-- **F3** - o3
-- **F4** - GPT-5 Thinking mini
 
 ### Gemini (gemini.google.com)
 - **F1** - Fast (auto-selected)
@@ -26,7 +24,7 @@ Made with Claude.
 - **Instant model switching** with function keys
 - **Auto-selects F1 model** on page load (stops if you manually pick a model)
 - **Smart retry** - distinguishes slow page loads from unavailable models
-- **Prevents browser defaults** for F1-F4 keys
+- **Prevents browser defaults** for supported function-key shortcuts
 - **Automatic updates** from this repository
 
 ## Installation

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.18
+// @version      1.19
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -52,11 +52,7 @@
     const MAPPINGS = {
       "F1": { label: "Instant", match: "instant" },
       "F2": { label: "Thinking", match: "thinking" },
-      "F3": { label: "o3", match: "o3", legacy: true },
-      "F4": { label: "GPT-5 Thinking mini", match: "5 thinking mini", legacy: true },
     };
-
-    const LEGACY_LABEL = "Legacy models";
 
     let lastRun = 0;
     let savedScrollTop = 0;
@@ -232,7 +228,7 @@
     }
 
     async function switchModel(config) {
-      const { label, match, exclude = [], legacy } = config;
+      const { label, match, exclude = [] } = config;
 
       saveScroll();
 
@@ -248,20 +244,6 @@
       clickMenuButton(btn);
       await sleep(50);
       restoreScroll();
-
-      if (legacy) {
-        const legacyItem = await waitFor(() => findMenuItem(LEGACY_LABEL), 3000);
-        if (!legacyItem) {
-          const menuReady = isMenuLoaded();
-          dismissMenu();
-          restoreScroll();
-          switchingModel = false;
-          return { success: false, found: false, menuLoaded: menuReady };
-        }
-        clickItem(legacyItem);
-        await sleep(40);
-        restoreScroll();
-      }
 
       const target = await waitFor(() => findMenuItem(match, exclude), 3000);
       if (!target) {
@@ -339,7 +321,7 @@
       log("Auto-select: gave up after 10 attempts");
     })();
 
-    log("ChatGPT: Ready - F1=Instant, F2=Thinking, F3=o3, F4=GPT-5 Thinking Mini (auto-select enabled)");
+    log("ChatGPT: Ready - F1=Instant, F2=Thinking (auto-select enabled)");
   }
 
   // ============ CLAUDE HANDLER ============
