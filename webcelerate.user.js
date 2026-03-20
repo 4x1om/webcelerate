@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.20
+// @version      1.21
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -334,6 +334,7 @@
       "F2": { label: "Sonnet", match: "sonnet" },
       "F3": { label: "Opus", match: "opus" },
     };
+    const DEFAULT_KEY = "F2";
 
     let lastRun = 0;
     let autoSelectAborted = false;
@@ -473,9 +474,9 @@
       observer.observe(btn, { childList: true, subtree: true, characterData: true });
     }
 
-    // Auto-select F1 model on page load
+    // Auto-select the default model on page load
     (async () => {
-      const config = MAPPINGS["F1"];
+      const config = MAPPINGS[DEFAULT_KEY];
       const btn = await waitFor(findModelButton, 15000, 200);
       if (!btn) { log("Auto-select: model button not found"); return; }
       watchModelButton();

@@ -7,8 +7,8 @@ Made with Claude.
 ## Supported Sites
 
 ### Claude (claude.ai)
-- **F1** - Haiku (latest version, auto-selected)
-- **F2** - Sonnet (latest version)
+- **F1** - Haiku (latest version)
+- **F2** - Sonnet (latest version, auto-selected)
 - **F3** - Opus (latest version)
 
 ### ChatGPT (chatgpt.com)
