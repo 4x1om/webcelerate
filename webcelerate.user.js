@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.19
+// @version      1.20
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
-// @updateURL    https://raw.githubusercontent.com/4x1om/webcelerate/main/webcelerate.user.js
-// @downloadURL  https://raw.githubusercontent.com/4x1om/webcelerate/main/webcelerate.user.js
+// @updateURL    https://raw.githubusercontent.com/hsi3/webcelerate/main/webcelerate.user.js
+// @downloadURL  https://raw.githubusercontent.com/hsi3/webcelerate/main/webcelerate.user.js
 // @run-at       document-start
 // @grant        none
 // ==/UserScript==
@@ -50,9 +50,10 @@
 
   function initChatGPT() {
     const MAPPINGS = {
-      "F1": { label: "Instant", match: "instant" },
-      "F2": { label: "Thinking", match: "thinking" },
+      "F2": { label: "Instant", match: "instant" },
+      "F3": { label: "Thinking", match: "thinking" },
     };
+    const DEFAULT_KEY = "F2";
 
     let lastRun = 0;
     let savedScrollTop = 0;
@@ -298,9 +299,9 @@
       observer.observe(btn, { childList: true, subtree: true, characterData: true });
     }
 
-    // Auto-select F1 model on page load
+    // Auto-select the default model on page load
     (async () => {
-      const config = MAPPINGS["F1"];
+      const config = MAPPINGS[DEFAULT_KEY];
       const btn = await waitFor(findModelButton, 15000, 200);
       if (!btn) { log("Auto-select: model button not found"); return; }
       watchModelButton();
@@ -321,7 +322,7 @@
       log("Auto-select: gave up after 10 attempts");
     })();
 
-    log("ChatGPT: Ready - F1=Instant, F2=Thinking (auto-select enabled)");
+    log("ChatGPT: Ready - F2=Instant, F3=Thinking (auto-select enabled)");
   }
 
   // ============ CLAUDE HANDLER ============
@@ -329,8 +330,9 @@
   function initClaude() {
     // Pattern-based matching: matches "Sonnet" followed by any version number
     const MAPPINGS = {
-      "F1": { label: "Sonnet", match: "sonnet" },
-      "F2": { label: "Opus", match: "opus" },
+      "F1": { label: "Haiku", match: "haiku" },
+      "F2": { label: "Sonnet", match: "sonnet" },
+      "F3": { label: "Opus", match: "opus" },
     };
 
     let lastRun = 0;
@@ -494,7 +496,7 @@
       log("Auto-select: gave up after 10 attempts");
     })();
 
-    log("Claude: Ready - F1=Sonnet, F2=Opus (auto-select enabled)");
+    log("Claude: Ready - F1=Haiku, F2=Sonnet, F3=Opus (auto-select enabled)");
   }
 
   // ============ GEMINI HANDLER ============
