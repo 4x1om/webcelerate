@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.21
+// @version      1.22
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
@@ -50,10 +50,10 @@
 
   function initChatGPT() {
     const MAPPINGS = {
-      "F2": { label: "Instant", match: "instant" },
-      "F3": { label: "Thinking", match: "thinking" },
+      "F1": { label: "Instant", match: "instant" },
+      "F2": { label: "Thinking", match: "thinking" },
     };
-    const DEFAULT_KEY = "F2";
+    const DEFAULT_KEY = "F1";
 
     let lastRun = 0;
     let savedScrollTop = 0;
@@ -322,7 +322,7 @@
       log("Auto-select: gave up after 10 attempts");
     })();
 
-    log("ChatGPT: Ready - F2=Instant, F3=Thinking (auto-select enabled)");
+    log("ChatGPT: Ready - F1=Instant, F2=Thinking (auto-select enabled)");
   }
 
   // ============ CLAUDE HANDLER ============
@@ -330,11 +330,10 @@
   function initClaude() {
     // Pattern-based matching: matches "Sonnet" followed by any version number
     const MAPPINGS = {
-      "F1": { label: "Haiku", match: "haiku" },
-      "F2": { label: "Sonnet", match: "sonnet" },
-      "F3": { label: "Opus", match: "opus" },
+      "F1": { label: "Sonnet", match: "sonnet" },
+      "F2": { label: "Opus", match: "opus" },
     };
-    const DEFAULT_KEY = "F2";
+    const DEFAULT_KEY = "F1";
 
     let lastRun = 0;
     let autoSelectAborted = false;
@@ -497,7 +496,7 @@
       log("Auto-select: gave up after 10 attempts");
     })();
 
-    log("Claude: Ready - F1=Haiku, F2=Sonnet, F3=Opus (auto-select enabled)");
+    log("Claude: Ready - F1=Sonnet, F2=Opus (auto-select enabled)");
   }
 
   // ============ GEMINI HANDLER ============

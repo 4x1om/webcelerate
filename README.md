@@ -7,13 +7,12 @@ Made with Claude.
 ## Supported Sites
 
 ### Claude (claude.ai)
-- **F1** - Haiku (latest version)
-- **F2** - Sonnet (latest version, auto-selected)
-- **F3** - Opus (latest version)
+- **F1** - Sonnet (latest version, auto-selected)
+- **F2** - Opus (latest version)
 
 ### ChatGPT (chatgpt.com)
-- **F2** - Instant (latest version, auto-selected)
-- **F3** - Thinking (latest version)
+- **F1** - Instant (latest version, auto-selected)
+- **F2** - Thinking (latest version)
 
 ### Gemini (gemini.google.com)
 - **F1** - Fast (auto-selected)
