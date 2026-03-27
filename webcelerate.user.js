@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Webcelerate
 // @namespace    4x1om-webcelerate
-// @version      1.22
+// @version      1.23
 // @description  Keyboard shortcuts and enhancements for AI chat interfaces
 // @author       Claude
 // @match        *://*/*
-// @updateURL    https://raw.githubusercontent.com/hsi3/webcelerate/main/webcelerate.user.js
-// @downloadURL  https://raw.githubusercontent.com/hsi3/webcelerate/main/webcelerate.user.js
+// @updateURL    https://raw.githubusercontent.com/schsi/webcelerate/main/webcelerate.user.js
+// @downloadURL  https://raw.githubusercontent.com/schsi/webcelerate/main/webcelerate.user.js
 // @run-at       document-start
 // @grant        none
 // ==/UserScript==

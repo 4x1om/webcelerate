@@ -30,6 +30,6 @@ Made with Claude.
 ## Installation
 
 1. Install a userscript manager like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/) in your browser
-2. Open the script: https://raw.githubusercontent.com/hsi3/webcelerate/main/webcelerate.user.js
+2. Open the script: https://raw.githubusercontent.com/schsi/webcelerate/main/webcelerate.user.js
 3. Your userscript manager should prompt you to install. Click "Install"
 4. Visit any supported site and the script will activate automatically
